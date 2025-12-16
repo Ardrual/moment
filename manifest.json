@@ -2,7 +2,7 @@
   "name": "Moment - Meditation Timer",
   "short_name": "Moment",
   "description": "A minimal meditation timer and ambient audio app. Inspired by am/fm by Adam Ludwin.",
-  "start_url": "/",
+  "start_url": "/moment",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#000000",
