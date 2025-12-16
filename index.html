@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Moment">
+  <meta name="description"
+    content="A minimal meditation timer and ambient audio app. Inspired by am/fm by Adam Ludwin.">
+
+  <title>Moment</title>
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="app">
+    <!-- Sound selector at top -->
+    <header class="header">
+      <div class="sound-bar">
+        <button class="sound-btn active" data-channel="0" title="Silence">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="1" y1="1" x2="23" y2="23" />
+            <path d="M9 9v6a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6" />
+            <path d="M17 16.95A7 7 0 0 0 19 12M12 19a7 7 0 0 1-7-7" />
+          </svg>
+        </button>
+        <button class="sound-btn" data-channel="1" title="Rain">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+          </svg>
+        </button>
+        <button class="sound-btn" data-channel="2" title="Waves">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M2 12c2-2 4-2 6 0s4 2 6 0 4-2 6 0" />
+            <path d="M2 17c2-2 4-2 6 0s4 2 6 0 4-2 6 0" />
+            <path d="M2 7c2-2 4-2 6 0s4 2 6 0 4-2 6 0" />
+          </svg>
+        </button>
+        <button class="sound-btn" data-channel="3" title="Drone">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="12" r="4" />
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+      <!-- The Disc -->
+      <div class="disc-container">
+        <div class="disc" id="disc">
+          <div class="disc-inner">
+            <div class="disc-content">
+              <span class="disc-time" id="timer-display">15:00</span>
+              <span class="disc-label" id="disc-label">tap to begin</span>
+            </div>
+          </div>
+          <!-- Progress ring for timer -->
+          <svg class="progress-ring" viewBox="0 0 200 200">
+            <circle class="progress-ring-bg" cx="100" cy="100" r="90" />
+            <circle class="progress-ring-fill" cx="100" cy="100" r="90" id="progress-ring" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- Timer Controls -->
+      <div class="controls">
+        <div class="duration-presets">
+          <button class="preset-btn" data-duration="300">5</button>
+          <button class="preset-btn" data-duration="600">10</button>
+          <button class="preset-btn active" data-duration="900">15</button>
+          <button class="preset-btn" data-duration="1200">20</button>
+          <button class="preset-btn" data-duration="1800">30</button>
+          <button class="preset-btn preset-btn-custom" id="custom-duration-btn">+</button>
+        </div>
+        <!-- Finish early button (hidden until timer starts) -->
+        <button class="finish-btn" id="finish-btn">finish early</button>
+      </div>
+    </main>
+
+    <!-- Footer Actions -->
+    <footer class="footer">
+      <button class="footer-btn" id="journal-btn">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+        </svg>
+        <span>Journal</span>
+      </button>
+      <button class="footer-btn" id="history-btn">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12 6 12 12 16 14" />
+        </svg>
+        <span>History</span>
+      </button>
+      <button class="footer-btn" id="settings-btn">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3" />
+          <path
+            d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+        </svg>
+        <span>Settings</span>
+      </button>
+    </footer>
+  </div>
+
+  <!-- Intention Modal (before meditation) -->
+  <div class="modal" id="intention-modal">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Set Your Intention</h2>
+        <button class="modal-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="journal-section">
+          <label for="intention">What would you like to focus on?</label>
+          <textarea id="intention" placeholder="e.g., Stay present with my breath..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="intention-skip">Skip</button>
+        <button class="btn btn-primary" id="intention-start">Begin</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reflection Modal (after meditation) -->
+  <div class="modal" id="reflection-modal">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>How Was Your Sit?</h2>
+        <button class="modal-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="session-summary" id="session-summary">
+          <!-- Will show duration and intention -->
+        </div>
+        <div class="journal-section">
+          <label for="reflection">Reflection</label>
+          <textarea id="reflection" placeholder="How did it go? What did you notice?"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="reflection-skip">Skip</button>
+        <button class="btn btn-primary" id="reflection-save">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Duration Modal -->
+  <div class="modal" id="duration-modal">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content modal-content-sm">
+      <div class="modal-header">
+        <h2>Set Duration</h2>
+        <button class="modal-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="duration-input-wrapper">
+          <input type="number" id="custom-minutes" min="1" max="180" value="45" class="duration-input">
+          <span class="duration-unit">minutes</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary modal-close-btn">Cancel</button>
+        <button class="btn btn-primary" id="set-duration-btn">Set</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- History Modal -->
+  <div class="modal" id="history-modal">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content modal-content-lg">
+      <div class="modal-header">
+        <h2>Session History</h2>
+        <button class="modal-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="history-list" id="history-list">
+          <!-- Sessions will be rendered here -->
+        </div>
+        <div class="history-empty" id="history-empty">
+          <p>No sessions yet. Complete a meditation to see your history.</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="export-history">Export JSON</button>
+        <button class="btn btn-primary modal-close-btn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal" id="settings-modal">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Settings</h2>
+        <button class="modal-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="setting-item">
+          <span class="setting-label">Theme</span>
+          <div class="theme-toggle">
+            <button class="theme-btn active" data-theme="dark">Dark</button>
+            <button class="theme-btn" data-theme="light">Light</button>
+          </div>
+        </div>
+        <div class="setting-item setting-item-stacked">
+          <span class="setting-label">End Bell</span>
+          <div class="bell-list" id="bell-list">
+            <!-- Bells will be rendered here -->
+          </div>
+        </div>
+        <div class="setting-item">
+          <span class="setting-label">Bell Volume</span>
+          <input type="range" id="bell-volume" min="0" max="100" value="80" class="volume-slider">
+        </div>
+        <div class="setting-item">
+          <span class="setting-label">Ambient Volume</span>
+          <input type="range" id="ambient-volume" min="0" max="100" value="50" class="volume-slider">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="clear-data">Clear All Data</button>
+        <button class="btn btn-primary modal-close-btn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
