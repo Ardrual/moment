@@ -1,11 +1,11 @@
-const CACHE_NAME = 'amfm-v1';
+const CACHE_NAME = 'amfm-v2';
 const ASSETS = [
-    '/',
-    '/index.html',
-    '/style.css',
-    '/app.js',
-    '/manifest.json',
-    '/icon.svg',
+    './',
+    './index.html',
+    './style.css',
+    './app.js',
+    './manifest.json',
+    './icon.svg',
 ];
 
 // Install event - cache assets
